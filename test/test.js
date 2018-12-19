@@ -260,6 +260,24 @@
         });
       });
 
+      it('doesn\'t match request origin against array of invalid origin checks even if header has already been set', function(done) {
+        var req = fakeRequest('GET');
+        var res = fakeResponse();
+        var options = { origin: [ /foo\.com$/, 'bar.com' ] };
+        cors()(req, res, function(err) {
+          assert.ifError(err)
+          assert.equal(res.getHeader('Access-Control-Allow-Origin'), '*')
+          assert.equal(res.getHeader('Vary'), undefined)
+
+          cors(options)(req, res, function(err2) {
+            assert.ifError(err)
+            assert.equal(res.getHeader('Access-Control-Allow-Origin'), null)
+            assert.equal(res.getHeader('Vary'), 'Origin')
+            return done();
+          });
+        });
+      });
+
       it('origin of false disables cors', function (done) {
         // arrange
         var req, res, next, options;
